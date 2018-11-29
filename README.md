@@ -22,13 +22,14 @@ Arguments for constructor:
 	(
 		'photo',
 		'jpg',
+		'480w 320h, 800w 600h, 1200w 800h',
 		[
-			[ 'w' => 480, 'h' => '320' ],
-			[ 'w' => 800, 'h' => 600 ],
-			[ 'w' => '1200', 'h' => 800 ]
-		],
-		[
-			'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ],
+			'loader' =>
+			[
+				'directory-url' => 'https://mywebsite.com',
+				'directory-server' => getcwd(),
+				'shared-directory' => 'tests'
+			],
 			'img-attributes' => [ 'class' => 'center-img' ],
 			'picture-attributes' => [ 'id' => 'slider-42' ],
 			'source-attributes' => [ 'class' => 'source-item' ]

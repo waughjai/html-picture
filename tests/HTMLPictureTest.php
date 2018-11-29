@@ -15,6 +15,14 @@ class HTMLPictureTest extends TestCase
 		$this->assertContains( '<source srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
 	}
 
+	public function testPictureHTMLStringSizes()
+	{
+		$picture = new HTMLPicture( 'photo', 'jpg', '480w 320h, 800w 600h, 1200w 800h' );
+		$this->assertContains( '<picture>', $picture->getHTML() );
+		$this->assertContains( '<img src="photo-480x320.jpg" alt="" />', $picture->getHTML() );
+		$this->assertContains( '<source srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
+	}
+
 	public function testPictureHTMLWithAttributes()
 	{
 		$picture = new HTMLPicture
