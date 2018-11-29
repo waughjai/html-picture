@@ -31,7 +31,7 @@ namespace WaughJ\HTMLPicture
 
 			public function __toString()
 			{
-				return $this->getHTMLString();
+				return $this->getHTML();
 			}
 
 			public function getHTML() : string
