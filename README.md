@@ -36,6 +36,6 @@ Arguments for constructor:
 		]
 	);
 
-Will print:
+Will print ( #s after "?m=" will vary ):
 
 	<picture id="slider-42"><source class="source-item" srcset="https://mywebsite.com/tests/photo-480x320.jpg?m=1543530332" media="(max-width:480px)"><source class="source-item" srcset="https://mywebsite.com/tests/photo-800x600.jpg?m=1543530717" media="(max-width:800px)"><source class="source-item" srcset="https://mywebsite.com/tests/photo-1200x800.jpg?m=1543530725"><img src="https://mywebsite.com/tests/photo-480x320.jpg?m=1543530332" class="center-img" alt="" /></picture>
