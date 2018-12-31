@@ -24,9 +24,10 @@ namespace WaughJ\HTMLPicture
 				$this->loader = self::setupLoader( $other_attributes, $extension );
 
 				$other_attributes = new VerifiedArgumentsSameType( $other_attributes, self::DEFAULT_ATTRIBUTES );
-				$this->img_attributes = $other_attributes->get( 'img-attributes' );
 				$this->picture_attributes = new HTMLAttributeList( $other_attributes->get( 'picture-attributes' ) );
 				$this->source_attributes = new HTMLAttributeList( $other_attributes->get( 'source-attributes' ) );
+				$this->img_attributes = $other_attributes->get( 'img-attributes' );
+				$this->fallback_image = new HTMLImage( $this->getSmallestSource(), $this->loader, $this->img_attributes );
 			}
 
 			public function __toString()
@@ -38,8 +39,13 @@ namespace WaughJ\HTMLPicture
 			{
 				return '<picture' . $this->picture_attributes->getAttributesText() . '>' .
 					$this->getSources() .
-					$this->getFallbackImage() .
+					$this->fallback_image->getHTML() .
 					'</picture>';
+			}
+
+			public function getFallbackImage() : HTMLImage
+			{
+				return $this->fallback_image;
 			}
 
 			public function print() : void
@@ -52,6 +58,13 @@ namespace WaughJ\HTMLPicture
 				return '<source' . $this->source_attributes->getAttributesText() . ' srcset="' . $this->loader->getSourceWithVersion( $this->getSourceFromSize( $size ) ) . '"' . $this->getSizeMedia( $size ) . '>';
 			}
 
+			public function changeFallbackImage( HTMLImage $image ) : HTMLPicture
+			{
+				$new_picture = clone $this;
+				$new_picture->fallback_image = $image;
+				return $new_picture;
+			}
+
 
 
 		//
@@ -62,12 +75,6 @@ namespace WaughJ\HTMLPicture
 			private function getSources() : string
 			{
 				return $this->sizes->forEach([ $this, 'getSingleSource' ]);
-			}
-
-			private function getFallbackImage() : string
-			{
-				$image = new HTMLImage( $this->getSmallestSource(), $this->loader, $this->img_attributes );
-				return $image->getHTML();
 			}
 
 			private function getSizeMedia( PictureSize $size ) : string
@@ -108,6 +115,7 @@ namespace WaughJ\HTMLPicture
 			private $picture_attributes;
 			private $source_attributes;
 			private $loader;
+			private $fallback_img;
 
 			const DEFAULT_ATTRIBUTES =
 			[

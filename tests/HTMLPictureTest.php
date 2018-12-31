@@ -90,4 +90,27 @@ class HTMLPictureTest extends TestCase
 		$this->assertEquals( $picture_size_list3->getSmallestSize(), new PictureSize( 480, 320, 0 ) );
 		$this->assertEquals( $picture_size_list3->getNextSize( $picture_size_list3->getSmallestSize() ), new PictureSize( 800, 600, 1 ) );
 	}
+
+	public function testFallbackImage()
+	{
+		$picture = new HTMLPicture
+		(
+			'photo',
+			'jpg',
+			[
+				[ 'w' => 480, 'h' => '320' ],
+				[ 'w' => 800, 'h' => 600 ],
+				[ 'w' => '1200', 'h' => 800 ]
+			],
+			[
+				'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
+			]
+		);
+		$this->assertContains( '<img src="https://mywebsite.com/tests/photo-480x320.jpg?m=', $picture->getFallbackImage()->getHTML() );
+		$this->assertNotContains( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
+		$this->assertNotContains( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
+		$picture = $picture->changeFallbackImage( $picture->getFallbackImage()->addToClass( 'new-picture' )->setAttribute( 'id', 'first-picture' ) );
+		$this->assertContains( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
+		$this->assertContains( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
+	}
 }
