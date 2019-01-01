@@ -3,7 +3,7 @@
 declare( strict_types = 1 );
 namespace WaughJ\HTMLPicture
 {
-	class PictureSize
+	class HTMLPictureSize
 	{
 		public function __construct( int $width, int $height, int $index )
 		{

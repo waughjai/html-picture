@@ -6,6 +6,11 @@ Class for easy generation o' picture tag HTML code.
 ## Use
 
 Arguments for constructor:
+1. Fallback image as HTMLImage object.
+2. Sources as array o' HTMLPictureSource objects.
+3. Array o' picture element attributes.
+
+A simpler way to generate these is to use the "generate" static method, which takes the following arguments:
 1. String representing base local filename ( don't include extension ).
 2. String representing extension ( don't include "."" ).
 3. Hash map with optional arguments:
@@ -18,7 +23,7 @@ Arguments for constructor:
 
 	use WaughJ\HTMLPicture\HTMLPicture;
 
-	echo new HTMLPicture
+	echo HTMLPicture::generate
 	(
 		'photo',
 		'jpg',

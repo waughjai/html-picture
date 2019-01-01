@@ -16,18 +16,22 @@ namespace WaughJ\HTMLPicture
 		//
 		/////////////////////////////////////////////////////////
 
-			public function __construct( string $source_root, string $extension, $sizes, array $other_attributes = [] )
+			public function __construct( HTMLImage $fallback_image, array $sources, array $picture_attributes = [] )
 			{
-				$this->source_root = $source_root;
-				$this->extension = $extension;
-				$this->sizes = new PictureSizeList( $sizes );
-				$this->loader = self::setupLoader( $other_attributes, $extension );
+				$this->fallback_image = $fallback_image;
+				$this->sources = $sources;
+				$this->picture_attributes = new HTMLAttributeList( $picture_attributes );
+			}
 
+			public static function generate( string $source_root, string $extension, $sizes, array $other_attributes = [] )
+			{
+				$sizes = new HTMLPictureSizeList( $sizes );
+				$loader = self::setupLoader( $other_attributes );
 				$other_attributes = new VerifiedArgumentsSameType( $other_attributes, self::DEFAULT_ATTRIBUTES );
-				$this->picture_attributes = new HTMLAttributeList( $other_attributes->get( 'picture-attributes' ) );
-				$this->source_attributes = new HTMLAttributeList( $other_attributes->get( 'source-attributes' ) );
-				$this->img_attributes = $other_attributes->get( 'img-attributes' );
-				$this->fallback_image = new HTMLImage( $this->getSmallestSource(), $this->loader, $this->img_attributes );
+				$sources = self::generateSources( $sizes, $source_root, $extension, $loader, $other_attributes->get( 'source-attributes' ) );
+				$fallback_image = new HTMLImage( $sources[ 0 ]->getSrcSet(), null, $other_attributes->get( 'img-attributes' ) );
+				$picture_attributes = $other_attributes->get( 'picture-attributes' );
+				return new HTMLPicture( $fallback_image, $sources, $picture_attributes );
 			}
 
 			public function __toString()
@@ -38,7 +42,7 @@ namespace WaughJ\HTMLPicture
 			public function getHTML() : string
 			{
 				return '<picture' . $this->picture_attributes->getAttributesText() . '>' .
-					$this->getSources() .
+					$this->getSourcesHTML() .
 					$this->fallback_image->getHTML() .
 					'</picture>';
 			}
@@ -51,11 +55,6 @@ namespace WaughJ\HTMLPicture
 			public function print() : void
 			{
 				echo $this;
-			}
-
-			public function getSingleSource( PictureSize $size ) : string
-			{
-				return '<source' . $this->source_attributes->getAttributesText() . ' srcset="' . $this->loader->getSourceWithVersion( $this->getSourceFromSize( $size ) ) . '"' . $this->getSizeMedia( $size ) . '>';
 			}
 
 			public function changeFallbackImage( HTMLImage $image ) : HTMLPicture
@@ -72,29 +71,28 @@ namespace WaughJ\HTMLPicture
 		//
 		/////////////////////////////////////////////////////////
 
-			private function getSources() : string
+			private function getSourcesHTML() : string
 			{
-				return $this->sizes->forEach([ $this, 'getSingleSource' ]);
+				$html = '';
+				foreach ( $this->sources as $source )
+				{
+					$html .= $source->getHTML();
+				}
+				return $html;
 			}
 
-			private function getSizeMedia( PictureSize $size ) : string
+			private static function generateSources( HTMLPictureSizeList $sizes, string $base, string $ext, FileLoader $loader, array $attributes  ) : array
 			{
-				return ( $size->getIndex() < $this->sizes->getLastIndex() )
-					? ' media="(max-width:' . $size->getWidth() . 'px)"'
-					: '';
+				return $sizes->forEach
+				(
+					function( HTMLPictureSize $size ) use ( $base, $ext, $loader, $attributes )
+					{
+						return HTMLPictureSource::generate( $base, $ext, $size->getWidth(), $size->getHeight(), $size->getWidth(), $loader, $attributes );
+					}
+				);
 			}
 
-			private function getSmallestSource() : string
-			{
-				return $this->getSourceFromSize( $this->sizes->getSmallestSize() );
-			}
-
-			private function getSourceFromSize( PictureSize $size ) : string
-			{
-				return $this->source_root . '-' . $size->getWidth() . 'x' . $size->getHeight();
-			}
-
-			private static function setupLoader( array $other_attributes, string $extension ) : FileLoader
+			private static function setupLoader( array $other_attributes ) : FileLoader
 			{
 				$loader = TestHashItemExists( $other_attributes, 'loader', null );
 				if ( is_array( $loader ) )
@@ -105,16 +103,11 @@ namespace WaughJ\HTMLPicture
 				{
 					$loader = new FileLoader();
 				}
-				return $loader->changeExtension( $extension );
+				return $loader;
 			}
 
-			private $source_root;
-			private $extension;
-			private $sizes;
-			private $img_attributes;
 			private $picture_attributes;
-			private $source_attributes;
-			private $loader;
+			private $sources;
 			private $fallback_img;
 
 			const DEFAULT_ATTRIBUTES =

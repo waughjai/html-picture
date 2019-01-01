@@ -3,7 +3,7 @@
 declare( strict_types = 1 );
 namespace WaughJ\HTMLPicture
 {
-	class PictureSizeList
+	class HTMLPictureSizeList
 	{
 		public function __construct( $sizes )
 		{
@@ -15,13 +15,13 @@ namespace WaughJ\HTMLPicture
 			{
 				$this->sizes = self::getSizesFromArray( $sizes );
 			}
-			else if ( is_a( $sizes, PictureSizeList::class ) )
+			else if ( is_a( $sizes, HTMLPictureSizeList::class ) )
 			{
 				$this->sizes = $sizes->getList();
 			}
 			else
 			{
-				throw \Exception( "Invalid argument o' type \"" . gettype( $sizes ) . "\" given to PictureSizeList constructor." );
+				throw \Exception( "Invalid argument o' type \"" . gettype( $sizes ) . "\" given to HTMLPictureSizeList constructor." );
 			}
 			$this->count = count( $this->sizes );
 		}
@@ -36,12 +36,12 @@ namespace WaughJ\HTMLPicture
 			return $this->getCount() - 1;
 		}
 
-		public function getSmallestSize() : PictureSize
+		public function getSmallestSize() : HTMLPictureSize
 		{
 			return $this->sizes[ 0 ];
 		}
 
-		public function getNextSize( PictureSize $size )
+		public function getNextSize( HTMLPictureSize $size )
 		{
 			return ( $size->getIndex() >= $this->getLastIndex() ) ? null : $this->sizes[ $size->getIndex() + 1 ];
 		}
@@ -51,14 +51,14 @@ namespace WaughJ\HTMLPicture
 			return $this->sizes;
 		}
 
-		public function forEach( callable $function ) : string
+		public function forEach( callable $function ) : array
 		{
-			$text = '';
+			$items = [];
 			foreach ( $this->sizes as $size )
 			{
-				$text .= $function( $size );
+				$items[] = $function( $size );
 			}
-			return $text;
+			return $items;
 		}
 
 		private static function getSizesFromString( string $sizes_string ) : array
@@ -74,7 +74,7 @@ namespace WaughJ\HTMLPicture
 					assert( count( $size_items ) >= 2 );
 					$w = str_replace( 'w', '', $size_items[ 0 ] );
 					$h = str_replace( 'h', '', $size_items[ 1 ] );
-					array_push( $final_sizes_list, new PictureSize( intval( $w ), intval( $h ), $i ) );
+					array_push( $final_sizes_list, new HTMLPictureSize( intval( $w ), intval( $h ), $i ) );
 					$i++;
 				}
 			}
@@ -87,7 +87,7 @@ namespace WaughJ\HTMLPicture
 			$i = 0;
 			foreach ( $sizes as $size )
 			{
-				array_push( $new_list, new PictureSize( intval( $size[ 'w' ] ), intval( $size[ 'h' ] ), $i ) );
+				array_push( $new_list, new HTMLPictureSize( intval( $size[ 'w' ] ), intval( $size[ 'h' ] ), $i ) );
 				$i++;
 			}
 			return $new_list;
