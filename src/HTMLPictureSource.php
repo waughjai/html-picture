@@ -8,15 +8,14 @@ namespace WaughJ\HTMLPicture
 
 	class HTMLPictureSource
 	{
-		public static function generate( string $base, string $ext, int $img_width, int $img_height, int $max_width = -1, FileLoader $loader = null, array $other_attributes = [] ) : HTMLPictureSource
+		public static function generate( string $base, string $ext, int $img_width, int $img_height, string $media = null, FileLoader $loader = null, array $other_attributes = [] ) : HTMLPictureSource
 		{
-			if ( $max_width < 0 )
+			if ( $media === null )
 			{
-				$max_width = $img_width;
+				$media = "(max-width:{$img_width}px)";
 			}
 			$local = "{$base}-{$img_width}x{$img_height}.{$ext}";
 			$srcset = ( $loader === null ) ? $local : $loader->getSourceWithVersion( $local );
-			$media = "(max-width:{$max_width}px)";
 			return new HTMLPictureSource( $srcset, $media, $other_attributes );
 		}
 

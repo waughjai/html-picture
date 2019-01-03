@@ -95,9 +95,19 @@ namespace WaughJ\HTMLPicture
 			{
 				return $sizes->forEach
 				(
-					function( HTMLPictureSize $size ) use ( $base, $ext, $loader, $attributes )
+					function( HTMLPictureSize $size ) use ( $base, $ext, $loader, $attributes, $sizes )
 					{
-						return HTMLPictureSource::generate( $base, $ext, $size->getWidth(), $size->getHeight(), $size->getWidth(), $loader, $attributes );
+						$is_last_source = $size->getIndex() === $sizes->getLastIndex();
+						if ( $is_last_source )
+						{
+							$min_width = $sizes->getPreviousSize( $size )->getWidth() + 1;
+							$media = "(min-width:{$min_width}px)";
+						}
+						else
+						{
+							$media = "(max-width:{$size->getWidth()}px)";
+						}
+						return HTMLPictureSource::generate( $base, $ext, $size->getWidth(), $size->getHeight(), $media, $loader, $attributes );
 					}
 				);
 			}

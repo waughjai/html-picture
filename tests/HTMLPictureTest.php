@@ -46,6 +46,7 @@ class HTMLPictureTest extends TestCase
 		$this->assertContains( ' src="photo-480x320.jpg"', $picture->getHTML() );
 		$this->assertContains( ' class="center-img"', $picture->getHTML() );
 		$this->assertContains( '<source class="source-item" srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
+		$this->assertContains( '<source class="source-item" srcset="photo-1200x800.jpg" media="(min-width:801px)">', $picture->getHTML() );
 		$this->assertContains( 'id="slider-42"', $picture->getPictureAttributes()->getAttributesText() );
 	}
 
@@ -97,7 +98,7 @@ class HTMLPictureTest extends TestCase
 	public function testPictureSource()
 	{
 		$loader = new FileLoader([ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]);
-		$source2 = HTMLPictureSource::generate( 'photo', 'jpg', 480, 320, 480 , $loader );
+		$source2 = HTMLPictureSource::generate( 'photo', 'jpg', 480, 320, null , $loader );
 		$this->assertContains( '<source srcset="https://mywebsite.com/tests/photo-480x320.jpg?m=1543530332" media="(max-width:480px)">', $source2->getHTML() );
 	}
 

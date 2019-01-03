@@ -26,6 +26,11 @@ namespace WaughJ\HTMLPicture
 			$this->count = count( $this->sizes );
 		}
 
+		public function getItem( int $index ) : HTMLPictureSize
+		{
+			return ( $index > 0 && $index < $this->getCount() ) ? $this->sizes[ $index ] : null;
+		}
+
 		public function getCount() : int
 		{
 			return $this->count;
@@ -39,6 +44,11 @@ namespace WaughJ\HTMLPicture
 		public function getSmallestSize() : HTMLPictureSize
 		{
 			return $this->sizes[ 0 ];
+		}
+
+		public function getPreviousSize( HTMLPictureSize $size )
+		{
+			return ( $size->getIndex() <= 0 ) ? null : $this->sizes[ $size->getIndex() - 1 ];
 		}
 
 		public function getNextSize( HTMLPictureSize $size )
