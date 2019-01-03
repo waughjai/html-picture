@@ -46,6 +46,7 @@ class HTMLPictureTest extends TestCase
 		$this->assertContains( ' src="photo-480x320.jpg"', $picture->getHTML() );
 		$this->assertContains( ' class="center-img"', $picture->getHTML() );
 		$this->assertContains( '<source class="source-item" srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
+		$this->assertContains( 'id="slider-42"', $picture->getPictureAttributes()->getAttributesText() );
 	}
 
 	public function testPictureHTMLWithFileLoader()

@@ -52,6 +52,16 @@ namespace WaughJ\HTMLPicture
 				return $this->fallback_image;
 			}
 
+			public function getSources() : array
+			{
+				return $this->sources;
+			}
+
+			public function getPictureAttributes() : HTMLAttributeList
+			{
+				return $this->picture_attributes;
+			}
+
 			public function print() : void
 			{
 				echo $this;
