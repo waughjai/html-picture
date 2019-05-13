@@ -7,7 +7,9 @@ namespace WaughJ\HTMLPicture
 	use WaughJ\HTMLAttributeList\HTMLAttributeList;
 	use WaughJ\HTMLImage\HTMLImage;
 	use WaughJ\VerifiedArgumentsSameType\VerifiedArgumentsSameType;
+	use function WaughJ\TestHashItem\TestHashItemArray;
 	use function WaughJ\TestHashItem\TestHashItemExists;
+	use function WaughJ\TestHashItem\TestHashItemIsTrue;
 
 	class HTMLPicture
 	{
@@ -27,8 +29,16 @@ namespace WaughJ\HTMLPicture
 			{
 				$sizes = new HTMLPictureSizeList( $sizes );
 				$loader = self::setupLoader( $other_attributes );
+
+				$src_attributes = TestHashItemArray( $other_attributes, 'source-attributes', [] );
+				if ( array_key_exists( 'show-version', $other_attributes ) && !$other_attributes[ 'show-version' ] )
+				{
+					$src_attributes[ 'show-version' ] = false;
+				}
+
 				$other_attributes = new VerifiedArgumentsSameType( $other_attributes, self::DEFAULT_ATTRIBUTES );
-				$sources = self::generateSources( $sizes, $source_root, $extension, $loader, $other_attributes->get( 'source-attributes' ) );
+
+				$sources = self::generateSources( $sizes, $source_root, $extension, $loader, $src_attributes );
 				$fallback_image = new HTMLImage( $sources[ 0 ]->getSrcSet(), null, $other_attributes->get( 'img-attributes' ) );
 				$picture_attributes = $other_attributes->get( 'picture-attributes' );
 				return new HTMLPicture( $fallback_image, $sources, $picture_attributes );

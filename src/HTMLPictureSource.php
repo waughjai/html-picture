@@ -5,6 +5,7 @@ namespace WaughJ\HTMLPicture
 {
 	use WaughJ\HTMLAttributeList\HTMLAttributeList;
 	use WaughJ\FileLoader\FileLoader;
+	use function WaughJ\TestHashItem\TestHashItemIsTrue;
 
 	class HTMLPictureSource
 	{
@@ -15,7 +16,13 @@ namespace WaughJ\HTMLPicture
 				$media = "(max-width:{$img_width}px)";
 			}
 			$local = "{$base}-{$img_width}x{$img_height}.{$ext}";
-			$srcset = ( $loader === null ) ? $local : $loader->getSourceWithVersion( $local );
+			$srcset = ( $loader === null )
+				? $local
+				: (
+					( array_key_exists( 'show-version', $other_attributes ) && !$other_attributes[ 'show-version' ] )
+					? $loader->getSource( $local )
+					: $loader->getSourceWithVersion( $local )
+				);
 			return new HTMLPictureSource( $srcset, $media, $other_attributes );
 		}
 

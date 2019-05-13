@@ -126,4 +126,25 @@ class HTMLPictureTest extends TestCase
 		$this->assertStringContainsString( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
 		$this->assertStringContainsString( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
 	}
+
+	public function testPictureHTMLWithFileLoaderWithoutVersioning()
+	{
+		$picture = HTMLPicture::generate
+		(
+			'photo',
+			'jpg',
+			[
+				[ 'w' => 480, 'h' => '320' ],
+				[ 'w' => 800, 'h' => 600 ],
+				[ 'w' => '1200', 'h' => 800 ]
+			],
+			[
+				'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ],
+				'show-version' => false
+			]
+		);
+		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
+		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/photo-480x320.jpg"', $picture->getHTML() );
+		$this->assertStringNotContainsString( '<source srcset="https://mywebsite.com/tests/photo-800x600.jpg?m=', $picture->getHTML() );
+	}
 }
