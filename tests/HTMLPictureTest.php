@@ -12,17 +12,17 @@ class HTMLPictureTest extends TestCase
 	public function testPictureHTML()
 	{
 		$picture = HTMLPicture::generate( 'photo', 'jpg', [ [ 'w' => 480, 'h' => '320' ], [ 'w' => 800, 'h' => 600 ], [ 'w' => '1200', 'h' => 800 ] ] );
-		$this->assertContains( '<picture>', $picture->getHTML() );
-		$this->assertContains( '<img src="photo-480x320.jpg" alt="" />', $picture->getHTML() );
-		$this->assertContains( '<source srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
+		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
+		$this->assertStringContainsString( '<img src="photo-480x320.jpg" alt="" />', $picture->getHTML() );
+		$this->assertStringContainsString( '<source srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
 	}
 
 	public function testPictureHTMLStringSizes()
 	{
 		$picture = HTMLPicture::generate( 'photo', 'jpg', '480w 320h, 800w 600h, 1200w 800h' );
-		$this->assertContains( '<picture>', $picture->getHTML() );
-		$this->assertContains( '<img src="photo-480x320.jpg" alt="" />', $picture->getHTML() );
-		$this->assertContains( '<source srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
+		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
+		$this->assertStringContainsString( '<img src="photo-480x320.jpg" alt="" />', $picture->getHTML() );
+		$this->assertStringContainsString( '<source srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
 	}
 
 	public function testPictureHTMLWithAttributes()
@@ -38,16 +38,18 @@ class HTMLPictureTest extends TestCase
 			],
 			[
 				'img-attributes' => [ 'class' => 'center-img' ],
-				'picture-attributes' => [ 'id' => 'slider-42' ],
+				'picture-attributes' => [ 'id' => 'slider-42', 'class' => 'pic' ],
 				'source-attributes' => [ 'class' => 'source-item' ]
 			]
 		);
-		$this->assertContains( '<picture id="slider-42">', $picture->getHTML() );
-		$this->assertContains( ' src="photo-480x320.jpg"', $picture->getHTML() );
-		$this->assertContains( ' class="center-img"', $picture->getHTML() );
-		$this->assertContains( '<source class="source-item" srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
-		$this->assertContains( '<source class="source-item" srcset="photo-1200x800.jpg" media="(min-width:801px)">', $picture->getHTML() );
-		$this->assertContains( 'id="slider-42"', $picture->getPictureAttributes()->getAttributesText() );
+		$this->assertStringContainsString( ' src="photo-480x320.jpg"', $picture->getHTML() );
+		$this->assertStringContainsString( ' class="center-img"', $picture->getHTML() );
+		$this->assertStringContainsString( '<source class="source-item" srcset="photo-800x600.jpg" media="(max-width:800px)">', $picture->getHTML() );
+		$this->assertStringContainsString( '<source class="source-item" srcset="photo-1200x800.jpg" media="(min-width:801px)">', $picture->getHTML() );
+		$this->assertStringContainsString( ' id="slider-42"', $picture->getPictureAttributes()->getAttributesText() );
+		$this->assertStringContainsString( ' class="pic"', $picture->getPictureAttributes()->getAttributesText() );
+		$this->assertEquals( 'pic', $picture->getPictureAttributes()->getAttribute( 'class' )->getValue() );
+		$this->assertEquals( 'slider-42', $picture->getPictureAttributes()->getAttribute( 'id' )->getValue() );
 	}
 
 	public function testPictureHTMLWithFileLoader()
@@ -65,9 +67,9 @@ class HTMLPictureTest extends TestCase
 				'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
 			]
 		);
-		$this->assertContains( '<picture>', $picture->getHTML() );
-		$this->assertContains( '<img src="https://mywebsite.com/tests/photo-480x320.jpg?m=', $picture->getHTML() );
-		$this->assertContains( '<source srcset="https://mywebsite.com/tests/photo-800x600.jpg?m=', $picture->getHTML() );
+		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
+		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/photo-480x320.jpg?m=', $picture->getHTML() );
+		$this->assertStringContainsString( '<source srcset="https://mywebsite.com/tests/photo-800x600.jpg?m=', $picture->getHTML() );
 	}
 
 	public function testHTMLPictureSize()
@@ -99,7 +101,7 @@ class HTMLPictureTest extends TestCase
 	{
 		$loader = new FileLoader([ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]);
 		$source2 = HTMLPictureSource::generate( 'photo', 'jpg', 480, 320, null , $loader );
-		$this->assertContains( '<source srcset="https://mywebsite.com/tests/photo-480x320.jpg?m=1543530332" media="(max-width:480px)">', $source2->getHTML() );
+		$this->assertStringContainsString( '<source srcset="https://mywebsite.com/tests/photo-480x320.jpg?m=1554999446" media="(max-width:480px)">', $source2->getHTML() );
 	}
 
 	public function testFallbackImage()
@@ -117,11 +119,11 @@ class HTMLPictureTest extends TestCase
 				'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
 			]
 		);
-		$this->assertContains( '<img src="https://mywebsite.com/tests/photo-480x320.jpg?m=', $picture->getFallbackImage()->getHTML() );
-		$this->assertNotContains( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
-		$this->assertNotContains( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
+		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/photo-480x320.jpg?m=', $picture->getFallbackImage()->getHTML() );
+		$this->assertStringNotContainsString( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
+		$this->assertStringNotContainsString( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
 		$picture = $picture->changeFallbackImage( $picture->getFallbackImage()->addToClass( 'new-picture' )->setAttribute( 'id', 'first-picture' ) );
-		$this->assertContains( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
-		$this->assertContains( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
+		$this->assertStringContainsString( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
+		$this->assertStringContainsString( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
 	}
 }
