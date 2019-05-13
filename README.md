@@ -44,3 +44,31 @@ A simpler way to generate these is to use the "generate" static method, which ta
 Will print ( #s after "?m=" will vary ):
 
 	<picture id="slider-42"><source class="source-item" srcset="https://mywebsite.com/tests/photo-480x320.jpg?m=1543530332" media="(max-width:480px)"><source class="source-item" srcset="https://mywebsite.com/tests/photo-800x600.jpg?m=1543530717" media="(max-width:800px)"><source class="source-item" srcset="https://mywebsite.com/tests/photo-1200x800.jpg?m=1543530725"><img src="https://mywebsite.com/tests/photo-480x320.jpg?m=1543530332" class="center-img" alt="" /></picture>
+
+### Error Handling
+
+PictureHTML's default o' adding a version to each URL may throw a WaughJ\FileLoader\MissingFileException exception when using the static generate method ( but not the regular constructor, which doesn't set any URLs ). This exception contains a fallback version o' the PictureHTML that is equivalent to a version with "show_version" turned off.
+
+Example:
+
+	$picture = null;
+	try
+	{
+		$picture = HTMLPicture::generate
+		(
+			'iainthere',
+			'jpg',
+			[
+				[ 'w' => 480, 'h' => '320' ],
+				[ 'w' => 800, 'h' => 600 ],
+				[ 'w' => '1200', 'h' => 800 ]
+			],
+			[
+				'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
+			]
+		);
+	}
+	catch ( MissingFileException $e )
+	{
+		$picture = $e->getFallbackContent();
+	}

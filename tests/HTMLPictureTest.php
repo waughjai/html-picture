@@ -1,11 +1,12 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use WaughJ\FileLoader\FileLoader;
+use WaughJ\FileLoader\MissingFileException;
 use WaughJ\HTMLPicture\HTMLPicture;
 use WaughJ\HTMLPicture\HTMLPictureSource;
 use WaughJ\HTMLPicture\HTMLPictureSize;
 use WaughJ\HTMLPicture\HTMLPictureSizeList;
-use WaughJ\FileLoader\FileLoader;
 
 class HTMLPictureTest extends TestCase
 {
@@ -125,6 +126,50 @@ class HTMLPictureTest extends TestCase
 		$picture = $picture->changeFallbackImage( $picture->getFallbackImage()->addToClass( 'new-picture' )->setAttribute( 'id', 'first-picture' ) );
 		$this->assertStringContainsString( ' class="new-picture"', $picture->getFallbackImage()->getHTML() );
 		$this->assertStringContainsString( ' id="first-picture"', $picture->getFallbackImage()->getHTML() );
+	}
+
+	public function testPictureHTMLMissingImage()
+	{
+		$picture = null;
+		try
+		{
+			$picture = HTMLPicture::generate
+			(
+				'iainthere',
+				'jpg',
+				[
+					[ 'w' => 480, 'h' => '320' ],
+					[ 'w' => 800, 'h' => 600 ],
+					[ 'w' => '1200', 'h' => 800 ]
+				],
+				[
+					'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
+				]
+			);
+		}
+		catch ( MissingFileException $e )
+		{
+			$picture = $e->getFallbackContent();
+		}
+
+		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
+		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/iainthere-480x320.jpg"', $picture->getHTML() );
+		$this->assertStringContainsString( '<source srcset="https://mywebsite.com/tests/iainthere-800x600.jpg"', $picture->getHTML() );
+
+		$this->expectException( MissingFileException::class );
+		$picture2 = HTMLPicture::generate
+		(
+			'iainthere',
+			'jpg',
+			[
+				[ 'w' => 480, 'h' => '320' ],
+				[ 'w' => 800, 'h' => 600 ],
+				[ 'w' => '1200', 'h' => 800 ]
+			],
+			[
+				'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
+			]
+		);
 	}
 
 	public function testPictureHTMLWithFileLoaderWithoutVersioning()

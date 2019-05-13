@@ -12,10 +12,10 @@
     "type": "library",
     "require": {
 		"php": ">=7.0",
-		"waughj/html-image": ">=0.5.2",
+		"waughj/html-image": ">=0.6.0",
 		"waughj/verified-arguments-same-type": "*",
 		"waughj/html-attribute-list": "*",
-		"waughj/file-loader": "*"
+		"waughj/file-loader": ">=0.5.3"
     },
     "require-dev": {
 		"phpunit/phpunit": "*"

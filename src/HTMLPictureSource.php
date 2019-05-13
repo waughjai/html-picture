@@ -5,6 +5,7 @@ namespace WaughJ\HTMLPicture
 {
 	use WaughJ\HTMLAttributeList\HTMLAttributeList;
 	use WaughJ\FileLoader\FileLoader;
+	use WaughJ\FileLoader\MissingFileException;
 	use function WaughJ\TestHashItem\TestHashItemIsTrue;
 
 	class HTMLPictureSource
@@ -16,14 +17,24 @@ namespace WaughJ\HTMLPicture
 				$media = "(max-width:{$img_width}px)";
 			}
 			$local = "{$base}-{$img_width}x{$img_height}.{$ext}";
-			$srcset = ( $loader === null )
-				? $local
-				: (
-					( array_key_exists( 'show-version', $other_attributes ) && !$other_attributes[ 'show-version' ] )
-					? $loader->getSource( $local )
-					: $loader->getSourceWithVersion( $local )
-				);
-			return new HTMLPictureSource( $srcset, $media, $other_attributes );
+
+			$srcset = null;
+			try
+			{
+				$srcset = ( $loader === null )
+					? $local
+					: (
+						( array_key_exists( 'show-version', $other_attributes ) && !$other_attributes[ 'show-version' ] )
+						? $loader->getSource( $local )
+						: $loader->getSourceWithVersion( $local )
+					);
+					return new HTMLPictureSource( $srcset, $media, $other_attributes );
+			}
+			catch ( MissingFileException $e )
+			{
+				$srcset = $loader->getSource( $local );
+				throw new MissingFileException( $e->getFilename(), new HTMLPictureSource( $srcset, $media, $other_attributes ) );
+			}
 		}
 
 		public function __construct( string $srcset, string $media, array $other_attributes = [] )
