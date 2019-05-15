@@ -7,6 +7,7 @@ use WaughJ\HTMLPicture\HTMLPicture;
 use WaughJ\HTMLPicture\HTMLPictureSource;
 use WaughJ\HTMLPicture\HTMLPictureSize;
 use WaughJ\HTMLPicture\HTMLPictureSizeList;
+use WaughJ\HTMLPicture\MalformedSizeStringException;
 
 class HTMLPictureTest extends TestCase
 {
@@ -85,17 +86,15 @@ class HTMLPictureTest extends TestCase
 	{
 		$string = '480w 320h, 800w 600h, 1200w 800h';
 		$picture_size_list = new HTMLPictureSizeList( $string );
-		$this->assertEquals( $picture_size_list->getCount(), 3 );
 		$this->assertEquals( $picture_size_list->getSmallestSize(), new HTMLPictureSize( 480, 320, 0 ) );
-		$this->assertEquals( $picture_size_list->getNextSize( $picture_size_list->getSmallestSize() ), new HTMLPictureSize( 800, 600, 1 ) );
 		$picture_size_list2 = new HTMLPictureSizeList( [ [ 'w' => 480, 'h' => '320' ], [ 'w' => 800, 'h' => 600 ], [ 'w' => '1200', 'h' => 800 ] ] );
-		$this->assertEquals( $picture_size_list2->getCount(), 3 );
 		$this->assertEquals( $picture_size_list2->getSmallestSize(), new HTMLPictureSize( 480, 320, 0 ) );
-		$this->assertEquals( $picture_size_list2->getNextSize( $picture_size_list2->getSmallestSize() ), new HTMLPictureSize( 800, 600, 1 ) );
 		$picture_size_list3 = new HTMLPictureSizeList( $picture_size_list2 );
-		$this->assertEquals( $picture_size_list3->getCount(), 3 );
 		$this->assertEquals( $picture_size_list3->getSmallestSize(), new HTMLPictureSize( 480, 320, 0 ) );
-		$this->assertEquals( $picture_size_list3->getNextSize( $picture_size_list3->getSmallestSize() ), new HTMLPictureSize( 800, 600, 1 ) );
+		$this->expectException( \InvalidArgumentException::class );
+		$picture_size_list = new HTMLPictureSizeList( 234 );
+		$this->expectException( MalformedSizeStringException::class );
+		$picture_size_list = new HTMLPictureSizeList( '480w 320h, 200w, 1200w, 800h' );
 	}
 
 	public function testPictureSource()
@@ -170,6 +169,35 @@ class HTMLPictureTest extends TestCase
 				'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
 			]
 		);
+	}
+
+	public function testPictureHTMLPartiallyMissingImage()
+	{
+		$picture = null;
+		try
+		{
+			$picture = HTMLPicture::generate
+			(
+				'somegone',
+				'png',
+				[
+					[ 'w' => 480, 'h' => '320' ],
+					[ 'w' => 800, 'h' => 600 ],
+					[ 'w' => '1200', 'h' => 800 ]
+				],
+				[
+					'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
+				]
+			);
+		}
+		catch ( MissingFileException $e )
+		{
+			$picture = $e->getFallbackContent();
+		}
+
+		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
+		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/somegone-480x320.png?m=', $picture->getHTML() );
+		$this->assertStringContainsString( '<source srcset="https://mywebsite.com/tests/somegone-800x600.png"', $picture->getHTML() );
 	}
 
 	public function testPictureHTMLWithFileLoaderWithoutVersioning()
