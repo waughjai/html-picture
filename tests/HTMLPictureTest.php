@@ -219,5 +219,6 @@ class HTMLPictureTest extends TestCase
 		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
 		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/photo-480x320.jpg"', $picture->getHTML() );
 		$this->assertStringNotContainsString( '<source srcset="https://mywebsite.com/tests/photo-800x600.jpg?m=', $picture->getHTML() );
+		$this->assertStringNotContainsString( ' show-version="', $picture->getHTML() );
 	}
 }

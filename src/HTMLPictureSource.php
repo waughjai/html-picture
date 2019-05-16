@@ -17,15 +17,16 @@ class HTMLPictureSource
 			$media = "(max-width:{$img_width}px)";
 		}
 		$local = "{$base}-{$img_width}x{$img_height}.{$ext}";
-		$srcset = null;
+		$show_version = ( bool )( $other_attributes[ 'show-version' ] ?? true ); // Default true ’less set.
+		unset( $other_attributes[ 'show-version' ] ); // Make sure we don't keep this when we convert to HTML attributes.
 		try
 		{
 			$srcset = ( $loader === null )
 				? $local
 				: (
-					( array_key_exists( 'show-version', $other_attributes ) && !$other_attributes[ 'show-version' ] )
-					? $loader->getSource( $local )
-					: $loader->getSourceWithVersion( $local )
+					$show_version
+					? $loader->getSourceWithVersion( $local )
+					: $loader->getSource( $local )
 				);
 			return new HTMLPictureSource( $srcset, $media, $other_attributes );
 		}
@@ -41,6 +42,11 @@ class HTMLPictureSource
 		$other_attributes[ 'srcset' ] = $srcset;
 		$other_attributes[ 'media' ] = $media;
 		$this->attributes = new HTMLAttributeList( $other_attributes );
+	}
+
+	public function __toString()
+	{
+		return $this->getHTML();
 	}
 
 	public function getHTML() : string

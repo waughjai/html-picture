@@ -24,6 +24,7 @@ class HTMLPicture
 			$this->fallback_image = $fallback_image;
 			$this->sources = $sources;
 			$this->picture_attributes = new HTMLAttributeList( $picture_attributes );
+			$this->html = self::generateHTML( $fallback_image, $sources, $this->picture_attributes );
 		}
 
 		public static function generate( string $source_root, string $extension, $sizes, array $other_attributes = [] )
@@ -44,19 +45,22 @@ class HTMLPicture
 				$exception = $e;
 				$sources = $e->getFallbackContent();
 			}
-			finally
+
+			$fallback_image = new HTMLImage( $sources[ 0 ]->getSrcSet(), null, $other_attributes->get( 'img-attributes' ) );
+			$picture_attributes = $other_attributes->get( 'picture-attributes' );
+			$content = new HTMLPicture( $fallback_image, $sources, $picture_attributes );
+
+			if ( $exception !== null )
 			{
-				$fallback_image = new HTMLImage( $sources[ 0 ]->getSrcSet(), null, $other_attributes->get( 'img-attributes' ) );
-				$picture_attributes = $other_attributes->get( 'picture-attributes' );
-				$content = new HTMLPicture( $fallback_image, $sources, $picture_attributes );
-
-				if ( $exception !== null )
-				{
-					throw new MissingFileException( $exception->getFilename(), $content );
-				}
-
-				return $content;
+				throw new MissingFileException( $exception->getFilename(), $content );
 			}
+
+			return $content;
+		}
+
+		public function print() : void
+		{
+			echo $this;
 		}
 
 		public function __toString()
@@ -66,10 +70,7 @@ class HTMLPicture
 
 		public function getHTML() : string
 		{
-			return '<picture' . $this->picture_attributes->getAttributesText() . '>' .
-					$this->getSourcesHTML() .
-					$this->fallback_image->getHTML() .
-				'</picture>';
+			return $this->html;
 		}
 
 		public function getFallbackImage() : HTMLImage
@@ -87,16 +88,9 @@ class HTMLPicture
 			return $this->picture_attributes;
 		}
 
-		public function print() : void
-		{
-			echo $this;
-		}
-
 		public function changeFallbackImage( HTMLImage $image ) : HTMLPicture
 		{
-			$new_picture = clone $this;
-			$new_picture->fallback_image = $image;
-			return $new_picture;
+			return new HTMLPicture( $image, $this->sources, $this->picture_attributes->getAttributeValuesMap() );
 		}
 
 
@@ -106,14 +100,12 @@ class HTMLPicture
 	//
 	/////////////////////////////////////////////////////////
 
-		private function getSourcesHTML() : string
+		private static function generateHTML( HTMLImage $fallback_image, array $sources, HTMLAttributeList $picture_attributes ) : string
 		{
-			$html = '';
-			foreach ( $this->sources as $source )
-			{
-				$html .= $source->getHTML();
-			}
-			return $html;
+			return '<picture' . $picture_attributes->getAttributesText() . '>' .
+					implode( '', $sources ) .
+					$fallback_image->getHTML() .
+				'</picture>';
 		}
 
 		private static function generateSources( $sizes, string $base, string $ext, FileLoader $loader, array $attributes  ) : array
@@ -176,6 +168,7 @@ class HTMLPicture
 		private $picture_attributes;
 		private $sources;
 		private $fallback_img;
+		private $html;
 
 		const DEFAULT_ATTRIBUTES =
 		[
