@@ -198,6 +198,31 @@ class HTMLPictureTest extends TestCase
 		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
 		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/somegone-480x320.png?m=', $picture->getHTML() );
 		$this->assertStringContainsString( '<source srcset="https://mywebsite.com/tests/somegone-800x600.png"', $picture->getHTML() );
+
+		try
+		{
+			$picture = HTMLPicture::generate
+			(
+				'somegone',
+				'png',
+				[
+					[ 'w' => 800, 'h' => 600 ],
+					[ 'w' => 480, 'h' => 320 ],
+					[ 'w' => '1200', 'h' => 800 ]
+				],
+				[
+					'loader' => [ 'directory-url' => 'https://mywebsite.com', 'directory-server' => getcwd(), 'shared-directory' => 'tests' ]
+				]
+			);
+		}
+		catch ( MissingFileException $e )
+		{
+			$picture = $e->getFallbackContent();
+		}
+
+		$this->assertStringContainsString( '<picture>', $picture->getHTML() );
+		$this->assertStringContainsString( '<img src="https://mywebsite.com/tests/somegone-800x600.png"', $picture->getHTML() );
+		$this->assertStringContainsString( '<source srcset="https://mywebsite.com/tests/somegone-480x320.png?m=', $picture->getHTML() );
 	}
 
 	public function testPictureHTMLWithFileLoaderWithoutVersioning()
