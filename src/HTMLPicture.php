@@ -7,10 +7,8 @@ use WaughJ\FileLoader\FileLoader;
 use WaughJ\FileLoader\MissingFileException;
 use WaughJ\HTMLAttributeList\HTMLAttributeList;
 use WaughJ\HTMLImage\HTMLImage;
+use WaughJ\TestHashItem\TestHashItem;
 use WaughJ\VerifiedArgumentsSameType\VerifiedArgumentsSameType;
-use function WaughJ\TestHashItem\TestHashItemArray;
-use function WaughJ\TestHashItem\TestHashItemExists;
-use function WaughJ\TestHashItem\TestHashItemIsTrue;
 
 class HTMLPicture
 {
@@ -147,7 +145,7 @@ class HTMLPicture
 
 		private static function setupLoader( array $other_attributes ) : FileLoader
 		{
-			$loader = TestHashItemExists( $other_attributes, 'loader', null );
+			$loader = $other_attributes[ 'loader' ] ?? '';
 			return ( is_array( $loader ) )
 				? new FileLoader( $loader )
 				: ( ( !is_a( $loader, FileLoader::class ) )
@@ -157,7 +155,7 @@ class HTMLPicture
 
 		private static function configureSrcAttributes( array $attributes ) : array
 		{
-			$src_attributes = TestHashItemArray( $attributes, 'source-attributes', [] );
+			$src_attributes = TestHashItem::getArray( $attributes, 'source-attributes', [] );
 			if ( array_key_exists( 'show-version', $attributes ) && !$attributes[ 'show-version' ] )
 			{
 				$src_attributes[ 'show-version' ] = false;

@@ -2,7 +2,7 @@
     "name": "waughj/html-picture",
     "description": "Simple class for easy generation o' picture tag HTML code.",
     "keywords": [ "picture tag", "html", "generator" ],
-    "license": "GPL-2.0-or-later",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
             "name": "Jaimeson Waugh",
@@ -12,10 +12,10 @@
     "type": "library",
     "require": {
 		"php": ">=7.0",
-		"waughj/html-image": ">=0.9.1",
+		"waughj/html-image": ">=0.9.2",
 		"waughj/verified-arguments-same-type": "*",
 		"waughj/html-attribute-list": "*",
-		"waughj/file-loader": ">=0.5.3"
+		"waughj/file-loader": ">=0.5.4"
     },
     "require-dev": {
 		"phpunit/phpunit": "*"

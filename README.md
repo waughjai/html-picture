@@ -72,3 +72,26 @@ Example:
 	{
 		$picture = $e->getFallbackContent();
 	}
+
+## Changelog
+
+### 0.7.0
+* Add Cached HTML to Make Use o' Same Object Multiple Times Faster
+
+### 0.6.0
+* Revamp Error Handling for Missing Files
+
+### 0.5.0
+* Add Ability to Easily Cancel Showing Versioning
+
+### 0.4.0
+* Add getSources & getPictureAttributes Methods
+
+### 0.3.0
+* Change Constructor to Take in HTMLImage & Array o' HTMLPictureSource
+
+### 0.2.0
+* Add getFallbackImage & changeFallbackImage Methods
+
+### 0.1.0
+* Initial Version

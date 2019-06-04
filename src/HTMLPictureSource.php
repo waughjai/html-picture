@@ -6,7 +6,6 @@ namespace WaughJ\HTMLPicture;
 use WaughJ\FileLoader\FileLoader;
 use WaughJ\FileLoader\MissingFileException;
 use WaughJ\HTMLAttributeList\HTMLAttributeList;
-use function WaughJ\TestHashItem\TestHashItemIsTrue;
 
 class HTMLPictureSource
 {
